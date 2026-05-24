@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
+system     /system      ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
+system_ext /system_ext  ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
+product    /product     ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
+vendor     /vendor      ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
+userdata   /data        ext4    noatime,nosuid,nodev,discard         latemount,wait,check,formattable
+metadata   /metadata    ext4    noatime,nosuid,nodev,discard         wait,check,formattable

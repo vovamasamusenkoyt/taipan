@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-2.0-only
+TARGET_ARCH := arm64
+TARGET_ARCH_VARIANT := armv8-a
+TARGET_CPU_ABI := arm64-v8a
+TARGET_CPU_ABI2 :=
+TARGET_CPU_VARIANT := generic
+TARGET_USES_64_BIT_BINDER := true
+
+TARGET_BOOTLOADER_BOARD_NAME := taipan-virt
+TARGET_BOARD_PLATFORM := taipan-virt
+TARGET_KERNEL_DTS := taipan-virt
+
+BOARD_BOOT_HEADER_VERSION := 4
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
+BOARD_USES_METADATA_PARTITION := true
+BOARD_SUPER_PARTITION_SIZE := 3221225472
+
+AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS := \
+	boot \
+	init_boot \
+	vbmeta \
+	vendor_boot \
+	system \
+	system_ext \
+	product \
+	vendor
+
+TARGET_NO_BOOTLOADER := false
+TARGET_NO_KERNEL := false
+TARGET_USERIMAGES_USE_EXT4 := true

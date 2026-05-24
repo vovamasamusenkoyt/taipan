@@ -1,0 +1,12 @@
+diff --git a/arch/arm64/boot/dts/Makefile b/arch/arm64/boot/dts/Makefile
+index 30dd6347a..b98d05b21 100644
+--- a/arch/arm64/boot/dts/Makefile
++++ b/arch/arm64/boot/dts/Makefile
+@@ -29,6 +29,7 @@ subdir-y += socionext
+ subdir-y += sprd
+ subdir-y += st
+ subdir-y += synaptics
++subdir-y += taipan
+ subdir-y += tesla
+ subdir-y += ti
+ subdir-y += toshiba

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
+on early-init
+    setprop ro.hardware taipan
+
+on init
+    setprop ro.boot.hardware taipan-virt
+    setprop ro.boot.console ttyAMA0
