@@ -1,7 +1,90 @@
 # SPDX-License-Identifier: GPL-2.0-only
+
+# Early boot initialization for Taipan virtual device on QEMU
 on early-init
+    # Hardware identification
     setprop ro.hardware taipan
+    setprop ro.hardware.keystore tegra
+    
+    # Platform/board properties
+    setprop ro.board.platform taipan-virt
+    setprop ro.boot.bootloader qemu
+    setprop ro.boot.serialno TAIPAN0000001
+    setprop ro.boot.baseband unknown
+    setprop ro.boot.chipset qemu-aarch64
+    
+    # Architecture/CPU properties
+    setprop ro.product.cpu.abilist arm64-v8a
+    setprop ro.product.cpu.abilist32 
+    setprop ro.product.cpu.abilist64 arm64-v8a
+    
+    # Console setup for ARM UART
+    setprop ro.boot.console ttyAMA0
+    setprop ro.console.uid 0
+    setprop ro.console.gid 0
+    
+    # QEMU-specific properties
+    setprop ro.kernel.qemu 1
+    setprop ro.kernel.android.checkjni 0
+    setprop ro.secure 1
+    
+    # Memory and device settings for QEMU
+    setprop ro.com.android.dataroaming false
+    setprop ro.com.android.dateformat MM-dd-yyyy
+    setprop ro.url.legal http://www.google.com/intl/%s/mobile/android/basic/phone-legal.html
+    setprop ro.url.legal.android_privacy http://www.google.com/intl/%s/mobile/android/basic/phone-legal.html
+    
+    # Dalvik/ART tuning for QEMU environment
+    setprop dalvik.vm.heapsize 512m
+    setprop dalvik.vm.stack-trace-file /data/anr/traces.txt
+    
+    # SELinux setup
+    setprop ro.boot.selinux enforcing
+    
+    # Device features
+    setprop ro.opengles.version 196610
+    setprop ro.telephony.use_old_mnc_mcc_format true
+    setprop ro.telephony.default_network 9,9
+    
+    # Setup cgroup paths for first_stage_mount
+    mkdir /dev/memcg_event_control 0644 system system
+    mount cgroup2 none /dev/memcg_event_control memory.events_control
 
 on init
+    # Boot properties 
     setprop ro.boot.hardware taipan-virt
     setprop ro.boot.console ttyAMA0
+    
+    # Zygote selection
+    setprop ro.zygote zygote64_32
+    
+    # Userspace reboot support
+    setprop ro.init.userspace_reboot.is_supported true
+    
+    # Enable dm-verity for system partitions
+    setprop ro.boot.verifiedbootstate green
+    
+    # Hardware composition
+    setprop ro.hardware.vulkan.version 4194305
+    setprop ro.hardware.vulkan.level 0
+    setprop ro.hardware.vulkan.compute 0
+    
+    # Setup early mount namespaces
+    mkdir /linkerconfig/bootstrap 0755
+    mkdir /linkerconfig/default 0755
+
+on property:sys.boot_from_charger_mode=1
+    # Charger mode initialization for emulator
+    setprop ro.bootmode charger
+
+# Device-specific mount point initialization
+on load_all_props_action
+    setprop ro.serialno TAIPAN${ro.boot.serialno}
+
+# Critical services for platform
+on property:ro.crypto.state=encrypted
+    setprop ro.crypto.type block
+
+# Platform-specific init triggers
+on property:ro.boot.verifiedbootstate=*
+    setprop ro.boot.flash.locked 1

@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# Hardware-specific initialization for Taipan virtual device
+# This RC file handles QEMU-specific device initialization
+
+# Serial console configuration
+on early-init
+    # Enable serial console early for debugging
+    write /proc/cmdline "console=ttyAMA0,38400n8"
+
+# QEMU PCI and virtio device initialization
+on init
+    # Virtio block device node permissions
+    chmod 0660 /dev/vda
+    chmod 0660 /dev/vdb
+    chmod 0660 /dev/vdc
+    chmod 0660 /dev/vdd
+    chown root system /dev/vda
+    chown root system /dev/vdb
+    chown root system /dev/vdc
+    chown root system /dev/vdd
+    
+    # Virtio network device initialization  
+    chmod 0660 /dev/vnet0
+    chown system system /dev/vnet0
+    
+    # Virtio RNG device for entropy
+    chmod 0666 /dev/urandom
+    chmod 0666 /dev/random
+    
+    # Platform-specific sysfs paths
+    mkdir /dev/memcg_event_control 0644 system system
+
+# QEMU watchdog support
+on init
+    # Enable watchdog for system stability
+    write /sys/module/watchdog/parameters/nowayout 1
+
+# Platform-specific property triggers
+on property:ro.hardware=taipan
+    setprop ro.hardware.vulkan.version 4194305
+    setprop ro.hardware.vulkan.level 0
+    setprop ro.hardware.vulkan.compute 0
+
+# Handle QEMU reboot/poweroff  
+on property:sys.powerctl=reboot:*
+    setprop ro.powerctl ${sys.powerctl}
+
+on property:sys.powerctl=shutdown
+    setprop ro.powerctl ${sys.powerctl}
+
+# Timezone and locale setup for emulator
+on property:ro.hardware=taipan
+    setprop persist.sys.timezone UTC
+    setprop persist.sys.locale en-US
+
+# CPU affinity settings for QEMU vCPUs
+on boot
+    # Set up CPU governor for virtual CPUs
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor performance
+
+# Memory subsystem for QEMU
+on init
+    # Setup memory pressure notifications
+    mkdir /dev/memcg 0755 root system
+    mount cgroup none /dev/memcg memory
+    mkdir /dev/memcg/system 0550 system system
+    mkdir /dev/memcg/apps 0755 system system

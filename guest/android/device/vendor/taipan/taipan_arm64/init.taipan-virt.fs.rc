@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# First stage mount configuration for Taipan virtual device
+# Handles dynamic partition mounting during boot
+
+# Configure super block device for dynamic partitions
+on load_system_props_action
+    setprop ro.super_partition_dir /super
+    setprop ro.super_partition_size 3221225472
+
+# Dynamic partition mounting
+on fs
+    wait /dev/block/by-name/super
+    setprop ro.boot.dynamic_partitions true
+    setprop ro.boot.dynamic_partitions_retrofit false
+
+# First stage ramdisk mount point
+on early-fs
+    mount vfat /dev/block/by-name/boot /boot
+    mount vfat /dev/block/by-name/init_boot /init_boot
+
+# Mount tmpfs for early initialization
+on init
+    mkdir /mnt/vendor/persist 0771 system system
+    mkdir /mnt/product/persist 0771 system system
+
+# System partition mounting
+on late-fs
+    wait /dev/block/by-name/system
+    wait /dev/block/by-name/vendor
+    wait /dev/block/by-name/product
+    wait /dev/block/by-name/system_ext
+    
+    # Setup overlay mount points
+    mkdir /mnt/scratch 0755 root root

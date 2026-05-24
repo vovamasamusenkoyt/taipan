@@ -1,7 +1,24 @@
 # SPDX-License-Identifier: GPL-2.0-only
-system     /system      ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
-system_ext /system_ext  ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
-product    /product     ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
-vendor     /vendor      ext4    ro,barrier=1                         wait,logical,first_stage_mount,slotselect
-userdata   /data        ext4    noatime,nosuid,nodev,discard         latemount,wait,check,formattable
-metadata   /metadata    ext4    noatime,nosuid,nodev,discard         wait,check,formattable
+# Mount points for Taipan virtual device on QEMU aarch64
+# Format: mount_point fs_type device/label flags
+
+# Dynamic super partition (logical partitions)
+system     /system      ext4    ro,barrier=1,errors=panic                     wait,logical,first_stage_mount,slotselect
+system_ext /system_ext  ext4    ro,barrier=1,errors=panic                     wait,logical,first_stage_mount,slotselect
+product    /product     ext4    ro,barrier=1,errors=panic                     wait,logical,first_stage_mount,slotselect
+vendor     /vendor      ext4    ro,barrier=1,errors=panic                     wait,logical,first_stage_mount,slotselect
+
+# Data partition - user writable
+userdata   /data        ext4    noatime,nosuid,nodev,discard,errors=panic     latemount,wait,check,formattable
+
+# Metadata partition
+metadata   /metadata    ext4    noatime,nosuid,nodev,discard,errors=panic     wait,check,formattable
+
+# Virtual A/B OTA support
+super      /super       vfat    defaults                                      defaults
+
+# QEMU virtio block device support - boot partition
+/dev/block/by-name/boot                     /boot     emmc    defaults    recoveryonly
+
+# QEMU virtio block device support - init_boot  
+/dev/block/by-name/init_boot                /init_boot emmc   defaults    recoveryonly

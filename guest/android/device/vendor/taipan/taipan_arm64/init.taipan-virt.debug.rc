@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# Debug and logging configuration for Taipan boot flow
+# This file provides enhanced logging and debugging during early boot
+
+# Early boot debug output
+on early-init
+    # Enable kernel debug output
+    write /proc/sysrq-trigger l
+    
+    # Log early properties
+    exec -- /system/bin/log -t "TaipanBoot" "Early init starting on Taipan virtual device"
+
+on init
+    # Enable init verbose logging
+    setprop ro.init.verbose 1
+    setprop ro.debuggable 1
+    setprop ro.secure 0
+    setprop ro.adb.secure 0
+    
+    # Log init phase
+    exec -- /system/bin/log -t "TaipanBoot" "Init phase started"
+
+# First stage mount debug
+on fs
+    exec -- /system/bin/log -t "TaipanBoot" "File system mount stage"
+    
+    # Log partition information
+    exec -- /system/bin/log -t "TaipanBoot" "Available block devices: $(ls -1 /dev/block/)"
+
+on post-fs
+    exec -- /system/bin/log -t "TaipanBoot" "Post-FS mount complete"
+
+on post-fs-data
+    exec -- /system/bin/log -t "TaipanBoot" "Data partition mounted"
+    
+    # Enable tombstone debugging
+    mkdir /data/tombstones 0771 system system
+    mkdir /data/anr 0771 system system
+
+on late-fs
+    exec -- /system/bin/log -t "TaipanBoot" "Late FS mount phase"
+
+on boot
+    exec -- /system/bin/log -t "TaipanBoot" "Boot phase - system services starting"
+    
+    # Enable kernel message ring buffer
+    write /proc/sys/kernel/printk "7 7 1 7"
+
+on property:ro.debuggable=1
+    exec -- /system/bin/log -t "TaipanBoot" "Debuggable build detected"
+    setprop ro.adb.secure 0
+    setprop service.bootanim.exit 1
+
+# Boot completion logging
+on property:sys.boot_completed=1
+    exec -- /system/bin/log -t "TaipanBoot" "Boot completed successfully"
+    exec -- /system/bin/log -t "TaipanBoot" "System uptime: $(cat /proc/uptime | awk '{print $1}') seconds"
+
+# Error and warning handlers
+on property:ro.boot.verificationfailed=1
+    exec -- /system/bin/log -e "TaipanBoot" "Boot verification failed - system may not function correctly"
+
+# Log device tree information
+on early-init
+    exec -- /system/bin/log -t "TaipanBoot" "Device: ${ro.hardware} | Board: ${ro.board.platform}"
+    exec -- /system/bin/log -t "TaipanBoot" "Console: ${ro.boot.console} | Serial: ${ro.boot.serialno}"
