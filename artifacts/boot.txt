@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# U-Boot boot script for Taipan
+# Loads kernel and device tree, then boots
+
+# Kernel image location in memory (typical for ARM)
+kernel_addr=0x80000000
+dtb_addr=0x83000000
+
+# Load kernel image from -kernel option (already in memory from QEMU)
+# DTB is also passed by QEMU via -dtb
+
+# Boot the kernel with device tree
+# Format: bootm [kernel_addr] - [dtb_addr]
+bootm 0x80000000 - 0x83000000

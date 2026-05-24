@@ -32,7 +32,7 @@ USERDATA_IMG="${USERDATA_IMG:-$ROOT_DIR/artifacts/images/userdata.img}"
 MACHINE="${MACHINE:-virt}"
 CPU="${CPU:-cortex-a72}"
 CORES="${CORES:-4}"
-MEMORY="${MEMORY:-2048}"
+MEMORY="${MEMORY:-4096}"
 APPEND="${APPEND:-console=ttyAMA0,38400n8 ro root=/dev/vda}"
 
 # Verify required files
