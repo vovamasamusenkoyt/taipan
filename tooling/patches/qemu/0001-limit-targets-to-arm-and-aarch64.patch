@@ -1,0 +1,100 @@
+diff --git a/configure b/configure
+index e138d83bc9..ab98d9a94f 100755
+--- a/configure
++++ b/configure
+@@ -793,41 +793,28 @@ then
+ fi
+ 
+ default_target_list=""
++taipan_allowed_target_list=" arm-softmmu aarch64-softmmu "
+ mak_wilds=""
+ 
+-if [ -n "$host_arch" ] && [ -d "$source_path/common-user/host/$host_arch" ]; then
+-    if [ "$linux_user" != no ]; then
+-        if [ "$host_os" = linux ]; then
+-            linux_user=yes
+-        elif [ "$linux_user" = yes ]; then
+-            error_exit "linux-user not supported on this architecture"
+-        fi
+-        if [ "$linux_user" = "yes" ]; then
+-            mak_wilds="${mak_wilds} $source_path/configs/targets/*-linux-user.mak"
+-        fi
+-    fi
+-    if [ "$bsd_user" != no ]; then
+-        if [ "$bsd_user" = "" ]; then
+-            test $host_os = freebsd && bsd_user=yes
+-        fi
+-        if [ "$bsd_user" = yes ] && ! [ -d "$source_path/bsd-user/$host_os" ]; then
+-            error_exit "bsd-user not supported on this host OS"
+-        fi
+-        if [ "$bsd_user" = "yes" ]; then
+-            mak_wilds="${mak_wilds} $source_path/configs/targets/*-bsd-user.mak"
+-        fi
+-    fi
+-else
+-    if [ "$linux_user" = yes ] || [ "$bsd_user" = yes ]; then
+-        error_exit "user mode emulation not supported on this architecture"
+-    fi
++if [ "$linux_user" = yes ] || [ "$bsd_user" = yes ]; then
++    error_exit "Taipan QEMU disables linux-user and bsd-user targets; only arm-softmmu and aarch64-softmmu are supported"
+ fi
++linux_user=no
++bsd_user=no
+ if [ "$system" = "yes" ]; then
+-    mak_wilds="${mak_wilds} $source_path/configs/targets/*-softmmu.mak"
++    mak_wilds="${mak_wilds} $source_path/configs/targets/arm-softmmu.mak"
++    mak_wilds="${mak_wilds} $source_path/configs/targets/aarch64-softmmu.mak"
+ fi
+ 
+ for config in $mak_wilds; do
+     target="$(basename "$config" .mak)"
++    case "$taipan_allowed_target_list" in
++        *" $target "*)
++            ;;
++        *)
++            continue
++            ;;
++    esac
+     if echo "$target_list_exclude" | grep -vq "$target"; then
+         default_target_list="${default_target_list} $target"
+     fi
+@@ -841,7 +828,7 @@ Options: [defaults in brackets after descriptions]
+ 
+ Standard options:
+   --help                   print this message
+-  --target-list=LIST       set target list (default: build all)
++  --target-list=LIST       set target list (default: arm-softmmu,aarch64-softmmu)
+ $(echo Available targets: $default_target_list | \
+   fold -s -w 53 | sed -e 's/^/                           /')
+   --target-list-exclude=LIST exclude a set of targets from the default target-list
+@@ -1116,6 +1103,13 @@ else
+                 error_exit "Unknown target name '$target'"
+                 ;;
+         esac
++        case "$taipan_allowed_target_list" in
++            *" $target "*)
++                ;;
++            *)
++                error_exit "Unsupported target '$target' in Taipan QEMU; only arm-softmmu and aarch64-softmmu are allowed"
++                ;;
++        esac
+     done
+ fi
+ 
+diff --git a/meson.build b/meson.build
+index eb07491819..4738dcdebe 100644
+--- a/meson.build
++++ b/meson.build
+@@ -60,6 +60,12 @@ supported_cpus = ['ppc64', 's390x', 'riscv64', 'x86_64',
+ cpu = host_machine.cpu_family()
+ 
+ target_dirs = config_host['TARGET_DIRS'].split()
++taipan_allowed_targets = ['arm-softmmu', 'aarch64-softmmu']
++foreach target : target_dirs
++  if target not in taipan_allowed_targets
++    error('Taipan QEMU only supports arm-softmmu and aarch64-softmmu; got @0@'.format(target))
++  endif
++endforeach
+ 
+ # type of binaries to build
+ have_linux_user = false

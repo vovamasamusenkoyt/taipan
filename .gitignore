@@ -64,3 +64,5 @@ platform/mesa/build/
 .env
 .env.*
 !.env.example
+
+platform/kernel-full-fetch/
