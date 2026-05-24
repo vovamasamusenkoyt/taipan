@@ -1,0 +1,66 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Rust/Cargo
+target/
+Cargo.lock
+
+# Generic build outputs
+build/
+out/
+dist/
+tmp/
+.cache/
+
+# Project artifacts
+artifacts/images/*
+artifacts/firmware/*
+artifacts/kernels/*
+artifacts/logs/*
+!artifacts/images/.gitkeep
+!artifacts/firmware/.gitkeep
+!artifacts/kernels/.gitkeep
+!artifacts/logs/.gitkeep
+
+# Android/AOSP style outputs
+guest/android/out/
+guest/android/.repo/
+guest/android/.croot
+guest/android/.module_paths/
+guest/android/.soong.db*
+guest/android/.ninja_*
+guest/android/soong.*
+
+# Kernel/QEMU/U-Boot/Mesa build trees
+platform/kernel/out/
+platform/kernel/build/
+platform/qemu/build/
+platform/u-boot/build/
+platform/mesa/build/
+
+# Test/runtime dumps
+*.log
+*.qcow2
+*.img
+*.iso
+*.bin
+*.elf
+*.dtb
+*.dtbo
+*.sparse
+*.raw
+*.dump
+*.trace
+*.pid
+*.sock
+
+# Environment files
+.env
+.env.*
+!.env.example
