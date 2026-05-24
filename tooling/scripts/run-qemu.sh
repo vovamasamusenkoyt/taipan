@@ -60,21 +60,23 @@ qemu_cmd="$qemu_cmd -cpu $CPU"
 qemu_cmd="$qemu_cmd -smp cores=$CORES,threads=1"
 qemu_cmd="$qemu_cmd -m $MEMORY"
 
-# Serial console - use pty or monitor redirection
+# Firmware and kernel
+qemu_cmd="$qemu_cmd -bios $UBOOT_BIN"
+qemu_cmd="$qemu_cmd -kernel $KERNEL_IMAGE"
+qemu_cmd="$qemu_cmd -dtb $KERNEL_DTB"
+
+# Serial console
 qemu_cmd="$qemu_cmd -serial pty"
 qemu_cmd="$qemu_cmd -monitor stdio"
 
 # Network
-qemu_cmd="$qemu_cmd -netdev user,id=net0,hostfwd=tcp::5555-:5555"
+qemu_cmd="$qemu_cmd -netdev user,id=net0,hostfwd=tcp::5556-:5555"
 qemu_cmd="$qemu_cmd -device virtio-net-device,netdev=net0,mac=52:54:00:12:34:56"
 
-# Block devices
-qemu_cmd="$qemu_cmd -drive file=$KERNEL_IMAGE,id=kernel,format=raw,if=none"
-qemu_cmd="$qemu_cmd -device virtio-blk-device,drive=kernel"
-
-if [ -f "$SYSTEM_IMG" ]; then
-    qemu_cmd="$qemu_cmd -drive file=$SYSTEM_IMG,id=system,format=raw,if=none"
-    qemu_cmd="$qemu_cmd -device virtio-blk-device,drive=system"
+# Block devices (optional - only if rootfs exists)
+if [ -f "$ROOT_DIR/artifacts/images/rootfs.img" ]; then
+    qemu_cmd="$qemu_cmd -drive file=$ROOT_DIR/artifacts/images/rootfs.img,id=vda,format=raw,if=none"
+    qemu_cmd="$qemu_cmd -device virtio-blk-device,drive=vda"
 fi
 
 # Display
