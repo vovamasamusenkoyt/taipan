@@ -66,12 +66,15 @@ qemu_cmd="$qemu_cmd -kernel $KERNEL_IMAGE"
 qemu_cmd="$qemu_cmd -dtb $KERNEL_DTB"
 
 # Serial console
-qemu_cmd="$qemu_cmd -serial pty"
-qemu_cmd="$qemu_cmd -monitor stdio"
+qemu_cmd="$qemu_cmd -serial stdio"
+qemu_cmd="$qemu_cmd -monitor none"
 
-# Network
-qemu_cmd="$qemu_cmd -netdev user,id=net0,hostfwd=tcp::5556-:5555"
-qemu_cmd="$qemu_cmd -device virtio-net-device,netdev=net0,mac=52:54:00:12:34:56"
+# Network (optional)
+ENABLE_NET="${ENABLE_NET:-1}"
+if [ "$ENABLE_NET" = "1" ]; then
+    qemu_cmd="$qemu_cmd -netdev user,id=net0,hostfwd=tcp::5556-:5555"
+    qemu_cmd="$qemu_cmd -device virtio-net-device,netdev=net0,mac=52:54:00:12:34:56"
+fi
 
 # Block devices (optional - only if rootfs exists)
 if [ -f "$ROOT_DIR/artifacts/images/rootfs.img" ]; then
