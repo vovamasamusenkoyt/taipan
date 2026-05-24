@@ -60,10 +60,11 @@ qemu_cmd="$qemu_cmd -cpu $CPU"
 qemu_cmd="$qemu_cmd -smp cores=$CORES,threads=1"
 qemu_cmd="$qemu_cmd -m $MEMORY"
 
-# Firmware and kernel
+# Firmware and kernel - use booti for compressed Image.gz
 qemu_cmd="$qemu_cmd -bios $UBOOT_BIN"
 qemu_cmd="$qemu_cmd -kernel $KERNEL_IMAGE"
 qemu_cmd="$qemu_cmd -dtb $KERNEL_DTB"
+qemu_cmd="$qemu_cmd -append 'console=ttyAMA0,38400n8'"
 
 # Serial console
 qemu_cmd="$qemu_cmd -serial stdio"
@@ -77,9 +78,11 @@ if [ "$ENABLE_NET" = "1" ]; then
 fi
 
 # Block devices (optional - only if rootfs exists)
-if [ -f "$ROOT_DIR/artifacts/images/rootfs.img" ]; then
-    qemu_cmd="$qemu_cmd -drive file=$ROOT_DIR/artifacts/images/rootfs.img,id=vda,format=raw,if=none"
-    qemu_cmd="$qemu_cmd -device virtio-blk-device,drive=vda"
+GSI_IMG="$ROOT_DIR/artifacts/gsi/system.img"
+if [ -f "$GSI_IMG" ]; then
+    qemu_cmd="$qemu_cmd -drive file=$GSI_IMG,id=rootfs,format=raw,if=none"
+    qemu_cmd="$qemu_cmd -device virtio-blk-device,drive=rootfs"
+    echo "Note: Android 16 GSI mounted as rootfs"
 fi
 
 # Display
